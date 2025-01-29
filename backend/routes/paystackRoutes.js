@@ -13,10 +13,10 @@ const { requireRestaurantAuth, requireCustomerAuth } = require("../middleware/au
 const router = express.Router();
 
 // 1. Customers initialize payment
-router.post("/initialize", requireCustomerAuth, requireCustomerAuth, initializePayment);
+router.post("/initialize", requireCustomerAuth, initializePayment);
 
 // 2. Customers verify payment after completing the transaction
-router.get("/verify", requireCustomerAuth, requireRestaurantAuth,  verifyPayment);
+router.get("/verify/:reference", requireCustomerAuth,  verifyPayment);
 
 // 3. Restaurant payment details and subaccount creation
 router.get("/payment/:restaurantId", requireRestaurantAuth, getPaymentDetails);

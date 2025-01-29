@@ -1,10 +1,11 @@
 const axios = require("axios");
 const mysql = require("mysql2"); 
 const db = require("../dbconnection");
+const { sendVerificationEmail, sendPaymentConfirmationEmail } = require("../brevo")
 
 // Initialize payment
 const initializePayment = async (req, res) => {
-    const { email, amount, restaurantId, id, orderType, location, quantity } = req.body;
+    const { email, amount, restaurantId, id, orderType, location, quantity, callback_url } = req.body;
     const items = [{ food_item_id: id, quantity, price: amount }];
     console.log("Request Body:", req.body);
 
@@ -44,11 +45,12 @@ const initializePayment = async (req, res) => {
         const response = await axios.post(
             "https://api.paystack.co/transaction/initialize",
             {
+                callback_url,
                 email,
                 amount: amount * 100, // Convert to kobo
-                metadata: { restaurantId, id }, // Add restaurant ID to metadata
+                metadata: { restaurantId, id}, // Add restaurant ID to metadata
                 subaccount: subaccountCode, // Include the subaccount code
-                bearer_settlement: "account", // Specify settlement account
+                bearer_settlement: "account",
             },
             {
                 headers: {
@@ -92,7 +94,7 @@ const initializePayment = async (req, res) => {
 
 // Verify payment
 const verifyPayment = async (req, res) => {
-    const { reference } = req.query;
+    const { reference } = req.params;
 
     if (!reference) {
         return res.status(400).json({ error: "Payment reference is required." });
@@ -108,21 +110,78 @@ const verifyPayment = async (req, res) => {
         const paymentStatus = response.data.data.status;
 
         if (paymentStatus === "success") {
-            // Update order status in the database
-            await db.query(`UPDATE orders SET status = ? WHERE payment_ref = ?`, ["confirmed", reference]);
+            // Fetch the order_id from the orders database using the payment_ref
+            const [orderRows] = await db.query(`SELECT id FROM orders WHERE payment_ref = ?`, [reference]);
 
-            res.status(200).json({
+            if (orderRows.length === 0) {
+                return res.status(404).json({ error: "Order not found for the given payment reference." });
+            }
+
+            const orderId = orderRows[0].id;
+            
+            // Update the order status to 'confirmed'
+            await db.query(`UPDATE orders SET status = ? WHERE id = ?`, ["confirmed", orderId]);
+
+            console.log(orderId);
+
+            const [itemRows] = await db.query(
+                `SELECT oi.food_item_id, oi.quantity, oi.price 
+                 FROM order_items oi
+                 JOIN orders o ON oi.order_id = o.id
+                 WHERE o.id = ?`, // Use `o.id` to match the correct order ID
+                [orderId] // The order ID parameter should be passed here
+            );
+            
+
+            console.log(itemRows);
+
+            if (itemRows.length === 0) {
+                return res.status(404).json({ error: "No items found for this order." });
+            }
+
+            // Fetch the restaurant email associated with the order
+            const [restaurantRows] = await db.query(
+                `SELECT u.email 
+                 FROM users u
+                 JOIN restaurants r ON r.user_id = u.user_id
+                 JOIN orders o ON o.restaurant_id = r.id
+                 WHERE o.id = ?`,
+                [orderId]
+            );
+
+            if (restaurantRows.length === 0) {
+                return res.status(404).json({ error: "Restaurant not found for the given order." });
+            }
+
+            const restaurantEmail = restaurantRows[0].email;
+
+            // Prepare and send the email to the restaurant
+            await sendPaymentConfirmationEmail(
+                restaurantEmail, 
+                'Restaurant Manager', 
+                orderId, 
+                paymentStatus, 
+                response.data.data.amount, 
+                itemRows
+            );
+
+            // Final response to the client
+            return res.status(200).json({
                 message: "Payment verified successfully.",
                 data: response.data.data,
             });
         } else {
-            res.status(400).json({ error: "Payment verification failed." });
+            return res.status(400).json({ error: "Payment verification failed." });
         }
     } catch (error) {
         console.error("Error verifying payment:", error.response?.data || error.message);
-        res.status(500).json({ error: "Failed to verify payment." });
+        return res.status(500).json({ error: "Failed to verify payment." });
     }
 };
+
+
+
+
 
 // Fetch transaction details
 const fetchTransaction = async (req, res) => {

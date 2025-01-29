@@ -6,11 +6,11 @@ import { AllRoutes } from './routes/AllRoutes';
 
 function App() {
   return (
-    <div className="min-h-screen bg-grey">
+    <div className="min-h-screen bg-grey-100">
       <BrowserRouter>
         {/* Adjust the layout */}
-        <Header />
-        <div className="relative pt-24">
+        <Header  />
+        <div className="relative">
           <AllRoutes />
         </div>
         <Footer />

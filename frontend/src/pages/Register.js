@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import MessageModal from '../components/MessageModal'
 
-const Register = ({onSwitchToLogin}) => {
+const Register = ({onSuccess, onSwitchToLogin}) => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("customer"); // Default role
+    const [message, setMessage] = useState("");
     const navigate = useNavigate();
+    const [showModal, setShowModal] = useState(true)
 
     const handleRegister = async (e) => {
         e.preventDefault(); // Prevent form submission
@@ -20,15 +23,22 @@ const Register = ({onSwitchToLogin}) => {
                 role, 
             });
             console.log(response.data);
-            // Redirect to login or home page after successful registration
-            navigate("/login");
+
+            alert("successfully registered. please verify email to continue.....")
+            setMessage("successfully registered. please verify email to continue.....")
+            onSuccess();
+            navigate("");
+            setShowModal(false)
         } catch (error) {
             console.error("Registration error:", error);
+            setMessage("resgistration unsuccessful email already used")
         }
     };
 
     return (
         <div>
+          { showModal && (
+            <>
           <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
           <form onSubmit={handleRegister}>
             <div className="mb-4">
@@ -91,6 +101,12 @@ const Register = ({onSwitchToLogin}) => {
               Login
             </button>
           </p>
+          </>
+          )}
+          {/**message modal */}
+          {message && (
+            <MessageModal message={message} onClose={() => setMessage("")} />
+          )}
         </div>
       );
 };

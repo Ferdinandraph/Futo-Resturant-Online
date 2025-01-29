@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import MessageModal from '../../components/MessageModal'
 
 const RestaurantAdminDashboard = () => {
   const [overview, setOverview] = useState({});
@@ -11,6 +12,8 @@ const RestaurantAdminDashboard = () => {
   const [restaurantId, setRestaurantId] = useState(null);
   const [editModal, setEditModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [message, setMessage] = useState("");
   const [newItem, setNewItem] = useState({
     name: "",
     price: "",
@@ -19,7 +22,6 @@ const RestaurantAdminDashboard = () => {
     category_name: "",
     image: null,
   });
-  const [showProfileModal, setShowProfileModal] = useState(false);
   const [profile, setProfile] = useState({
     name: "",
     address: "",
@@ -33,7 +35,6 @@ const RestaurantAdminDashboard = () => {
     accountNumber: '',
     percentageSplit: 10.5,
   });
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showDetails, setShowDetails] = useState(false);
@@ -44,10 +45,14 @@ const RestaurantAdminDashboard = () => {
   useEffect(() => {
     const profileString = localStorage.getItem("profile");
     const profile = profileString ? JSON.parse(profileString) : null;
+    
     if (profile?.id) {
       setRestaurantId(profile.id);
+    } else {
+      localStorage.removeItem("profile"); // Ensure no stale data
     }
   }, []);
+  
 
   useEffect(() => {
     if (restaurantId) {
@@ -59,10 +64,11 @@ const RestaurantAdminDashboard = () => {
   }, [restaurantId]);
 
   useEffect(() => {
-    if (profile.name) {
+    if (profile && profile.name) {
       localStorage.setItem("profile", JSON.stringify(profile));
     }
   }, [profile]);
+  
 
   // Fetch categories when the component mounts
   useEffect(() => {
@@ -110,7 +116,7 @@ const RestaurantAdminDashboard = () => {
       newItem.availability === undefined ||
       !newItem.category_name
     ) {
-      alert("All fields are required!");
+      setMessage("All fields are required!");
       return;
     }
   
@@ -130,7 +136,7 @@ const RestaurantAdminDashboard = () => {
         },
       });
       fetchMenuItems();
-      alert("Menu item added successfully!");
+      setMessage("Menu item added successfully!");
       setShowModal(false);
       setNewItem({ name: "", price: "", description: "", availability: true, category_name: "", image: null });
     } catch (error) {
@@ -150,13 +156,13 @@ const RestaurantAdminDashboard = () => {
   
     // Check if category is selected
     if (!selectedItem.category_name) {
-      alert("Category is required!");
+      setMessage("Category is required!");
       return;
     }
   
     // Check if all required fields are filled
     if (!selectedItem.name || !selectedItem.price || !selectedItem.description) {
-      alert("All fields are required!");
+      setMessage("All fields are required!");
       return;
     }
   
@@ -181,7 +187,7 @@ const RestaurantAdminDashboard = () => {
       fetchMenuItems();
       
       // Success alert and closing modal
-      alert("Menu item updated successfully!");
+      setMessage("Menu item updated successfully!");
       setEditModal(false);
     } catch (error) {
       console.error("Error updating menu item:", error);
@@ -197,7 +203,7 @@ const RestaurantAdminDashboard = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       fetchMenuItems();
-      alert("Menu item deleted successfully!");
+      setMessage("Menu item deleted successfully!");
     } catch (error) {
       console.error("Error deleting menu item:", error);
     }
@@ -211,9 +217,11 @@ const RestaurantAdminDashboard = () => {
   const fetchProfile = async () => {
     try {
       const response = await axios.get("http://localhost:3300/restaurant/profile");
-      if (response.data[0]) {
+      if (response.data.length > 0) {
         const { user_id, name, address, image_url, contact_number, description } = response.data[0];
-        setProfile({ id: user_id, name, address, image: image_url, contact_number, description });
+        const newProfile = { id: user_id, name, address, image: image_url, contact_number, description };
+        setProfile(newProfile);
+        localStorage.setItem("profile", JSON.stringify(newProfile));
       } else {
         setProfile({ name: "", address: "", description: "", image: null, contact_number: "" });
         localStorage.removeItem("profile");
@@ -224,6 +232,7 @@ const RestaurantAdminDashboard = () => {
       localStorage.removeItem("profile");
     }
   };
+  
 
   const handleProfileChange = (e) => {
     const { name, value, files } = e.target;
@@ -260,7 +269,7 @@ const RestaurantAdminDashboard = () => {
       setShowProfileModal(false);
     } catch (error) {
       console.error("Error saving profile:", error);
-      alert("Failed to save profile.");
+      setMessage("Failed to save profile.");
     }
   };
 
@@ -340,15 +349,10 @@ const RestaurantAdminDashboard = () => {
   
   return (
     <div className="container mx-auto px-6 py-12">
-      <h1 className="text-3xl font-bold mb-6">Welcome, {profile.name}</h1>
 
-      {/* Profile Setup Button */}
-      <button
-        className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mb-4"
-        onClick={() => setShowProfileModal(true)}
-      >
-        {profile.name ? "Update Profile" : "Complete Profile"}
-      </button>
+
+      <h1 className="text-3xl font-bold mb-6">Welcome, {profile.name}</h1>
+      {console.log(profile.name)}
 
       {/* Profile Setup Modal */}
       {showProfileModal && (
@@ -441,6 +445,21 @@ const RestaurantAdminDashboard = () => {
           </div>
         </div>
       )}
+      <span
+          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mb-4 cursor-pointer inline-block transition duration-200 ease-in-out"
+          onClick={() => {
+            console.log("Span clicked!");
+            setShowProfileModal(true); // Ensure this function is properly defined
+          }}
+          onMouseEnter={() => console.log("Hovered over the span!")} // Optional hover logging
+        >
+          {profile.name ? "Update Profile" : "Complete Profile"}
+        </span>
+
+      {/**message modal */}
+        {message && (
+          <MessageModal message={message} onClose={() => setMessage("")} />
+        )}
 
       {/* Overview Section */}
       <section className="mb-8">

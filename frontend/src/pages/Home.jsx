@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import img1 from "../images/gt1.jpg";
-import { FaStar } from "react-icons/fa";
 import axios from "axios";
-import blessingegusi from "../images/blessingegusi.png";
 import carousel2 from "../images/carousel2.jpg";
 import pizza1 from "../images/foodbaker-special-pizza-1 (1).jpg";
 import masonry8 from "../images/fb_masonary_8-1.jpg";
+import MessageModal from '../components/MessageModal'
+import Login from "../pages/Login";
+import Register from "../pages/Register";
 
 const Home = () => {
   const role = localStorage.getItem("role");
@@ -20,6 +20,9 @@ const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [location, setLocation] = useState("");
+  const [message, setMessage] = useState("");
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -28,6 +31,8 @@ const Home = () => {
 
   const images = [carousel2, pizza1, masonry8];
   const [currentImage, setCurrentImage] = useState(0);
+
+  const isAuthenticated = !!localStorage.getItem('token')
 
   const token = localStorage.getItem('token');
 
@@ -92,9 +97,23 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const closeModal = () => {
+    setShowLogin(false)
+    setShowRegister(false)
+    setShowModal(false)
+  }
+
+  const handleSuccess = () => {
+    closeModal(); // Close the modal after successful login/registration
+  };
+
   const handleOrderNow = (item) => {
+    if (!localStorage.getItem("token")) { // Check if user is not authenticated
+      setShowLogin(true);
+      return;
+    }
     setSelectedItem(item); // Store the selected item
-    setShowModal(true); // Show the modal for order type selection
+    setShowModal(true);
   };
 
   const handleOrderTypeSelect = (type) => {
@@ -110,22 +129,26 @@ const Home = () => {
     processOrder(orderType); // Proceed with the order
     setShowModal(false)
   };
-  const totalPrice = selectedItem? selectedItem.price * quantity: 0
+  let totalPrice = selectedItem? selectedItem.price * quantity: 0
+  if (orderType=="delivery"){
+    totalPrice = totalPrice + 1000;
+  }
   
   const processOrder = async (orderType) => {
     try {
-      setLoading(true); // Set loading state to true while processing the order
+      setLoading(true);
       const userEmail = localStorage.getItem("email");
-      const { price, id, restaurant_id } = selectedItem; // Get item details
+      const { price, id, restaurant_id } = selectedItem; 
   
       const paymentData = {
         email: userEmail,
-        amount: totalPrice * 100, // Multiply price by quantity
+        amount: totalPrice * 100,
         id,
         restaurantId: restaurant_id,
         orderType,
-        location, // Add location for delivery orders
-        quantity, // Include quantity in the payment data
+        location,
+        quantity,
+        callback_url: "http://localhost:3000/payment-status"
       };
   
       // Initialize Payment
@@ -143,11 +166,12 @@ const Home = () => {
       window.location.href = data.authorization_url;
     } catch (err) {
       console.error("Payment error:", err);
-      alert("Error initializing payment. Please try again.");
+      setMessage("error initializing payment")
     } finally {
       setLoading(false); // Reset loading state
     }
   };
+  
   
 
   const visitRestaurant = (restaurantId) => {
@@ -155,30 +179,24 @@ const Home = () => {
   };
 
   const handleNavigateToDashboard = () => {
-    navigate("/dashboard");
+    if (isAuthenticated && role === "restaurant") {
+      navigate("/dashboard");
+    }
   };
 
 
   return (
     <div className="min-h-screen bg-gray-100">
     {/* Hero Section */}
-    <div className="relative w-full" style={{
-      backgroundImage: `url(${images[currentImage]})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-      backgroundAttachment: 'fixed',
-      height: '70vh',
-    }}>
-      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-        <div className="text-center text-white px-6">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-wider">
-            Welcome
-          </h1>
-          <p className="text-lg mb-6 leading-relaxed">
-            Explore your favorite dishes and place an order today!
-          </p>
-          {role === "restaurant" && (
+    <div className="relative w-full bg-gray-800 py-16">
+    <div className="text-center text-white px-6">
+      <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-wider">
+        Welcome
+      </h1>
+      <p className="text-lg mb-6 leading-relaxed">
+        Explore your favorite dishes and place an order today!
+      </p>
+      {isAuthenticated && role === "restaurant" && (
             <button
               onClick={handleNavigateToDashboard}
               className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transform hover:scale-105 transition duration-300"
@@ -186,32 +204,32 @@ const Home = () => {
               Go to Dashboard
             </button>
           )}
-        </div>
-      </div>
     </div>
+  </div>
 
 
 
 
       {/* users */}
-      <div className="bg-gray-100 p-6 rounded-lg shadow-lg w-full max-w-3xl mx-auto">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        <div className="flex items-center text-gray-700">
-          <i className="fa fa-check-circle text-blue-500 mr-2 text-2xl"></i>
-          <span>18 Restaurants</span>
-        </div>
-        <div className="flex items-center text-gray-700">
-          <i className="fa fa-check-circle text-blue-500 mr-2 text-2xl"></i>
-          <span>52 People Served</span>
-        </div>
-        <div className="flex items-center text-gray-700">
-          <i className="fa fa-check-circle text-blue-500 mr-2 text-2xl"></i>
-          <span>51 Registered Users</span>
+      <div className="bg-gray-100 p-6 rounded-lg w-full mx-auto">
+        <div className="flex justify-between items-center gap-6">
+          <div className="flex items-center text-gray-700">
+            <i className="fa fa-check-circle text-blue-500 mr-2 text-2xl"></i>
+            <span>18 Restaurants</span>
+          </div>
+          <div className="flex items-center text-gray-700">
+            <i className="fa fa-check-circle text-blue-500 mr-2 text-2xl"></i>
+            <span>52 People Served</span>
+          </div>
+          <div className="flex items-center text-gray-700">
+            <i className="fa fa-check-circle text-blue-500 mr-2 text-2xl"></i>
+            <span>51 Registered Users</span>
+          </div>
         </div>
       </div>
-    </div>
 
-      {/* how it works */}
+
+      {/**how it works */}
       <section className="text-center py-16 bg-gray-100">
       <div className="container mx-auto">
         <h2 className="text-4xl font-bold mb-4">How It Works</h2>
@@ -219,8 +237,8 @@ const Home = () => {
           Explore how easy it is to place your order with us.
         </p>
         <div className="flex flex-wrap justify-center gap-8">
-          <div className="w-full sm:w-1/3 lg:w-1/4 hover:scale-105 transform transition duration-300">
-            <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+          <div className="w-full sm:w-1/3 lg:w-1/4 flex flex-col justify-between hover:scale-105 transform transition duration-300">
+            <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 h-full">
               <div className="icon text-4xl text-blue-500 mb-4">
                 <i className="fas fa-university"></i>
               </div>
@@ -229,34 +247,67 @@ const Home = () => {
                 Find your favorite restaurant from a list of top picks.
               </p>
             </div>
-            </div>
-            <div className="w-full sm:w-1/3 lg:w-1/4">
-              <div className="how-it-works-item bg-white p-6 rounded-lg shadow-md">
-                <div className="icon text-4xl text-orange-500 mb-4">
-                  <i className="fas fa-hamburger"></i>
-                </div>
-                <h5 className="text-xl font-semibold mb-4">Choose A Tasty Dish</h5>
-                <p className="text-gray-700">
-                  Dictum velit. Duis at purus enim. Cras massa massa, maximus sit amet finibus quis, pharetra eu erat.
-                </p>
+          </div>
+          <div className="w-full sm:w-1/3 lg:w-1/4 flex flex-col justify-between hover:scale-105 transform transition duration-300">
+            <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 h-full">
+              <div className="icon text-4xl text-orange-500 mb-4">
+                <i className="fas fa-hamburger"></i>
               </div>
+              <h5 className="text-xl font-semibold mb-4">Choose A Tasty Dish</h5>
+              <p className="text-gray-700">
+                Dictum velit. Duis at purus enim. Cras massa massa, maximus sit amet finibus quis, pharetra eu erat.
+              </p>
             </div>
-            <div className="w-full sm:w-1/3 lg:w-1/4">
-              <div className="how-it-works-item bg-white p-6 rounded-lg shadow-md">
-                <div className="icon text-4xl text-green-500 mb-4">
-                  <i className="fas fa-truck"></i>
-                </div>
-                <h5 className="text-xl font-semibold mb-4">Pick Up Or Delivery</h5>
-                <p className="text-gray-700">
-                  Purus enim. Cras massa massa, maximus sit amet finibus quis, pharetra eu erat.
-                </p>
+          </div>
+          <div className="w-full sm:w-1/3 lg:w-1/4 flex flex-col justify-between hover:scale-105 transform transition duration-300">
+            <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 h-full">
+              <div className="icon text-4xl text-green-500 mb-4">
+                <i className="fas fa-truck"></i>
               </div>
+              <h5 className="text-xl font-semibold mb-4">Pick Up Or Delivery</h5>
+              <p className="text-gray-700">
+                Purus enim. Cras massa massa, maximus sit amet finibus quis, pharetra eu erat.
+              </p>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
 
+      {/**message modal */}
+      {message && (
+            <MessageModal message={message} onClose={() => setMessage("")} />
+          )}
+
+      {/**show login */}
+      {showLogin && (
+          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-md">
+              <button
+                onClick={closeModal}
+                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+              <Login  onSuccess={handleSuccess} onSwitchToRegister={() => setShowRegister(true)} />
+            </div>
+          </div>
+        )}
+
+        {showRegister && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-md">
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+            <Register onSuccess={handleSuccess} onSwitchToLogin={() => setShowLogin(true)} />
+          </div>
+        </div>
+      )}
 
 
       {/* Search Bar */}
@@ -280,7 +331,7 @@ const Home = () => {
       {/* Food Items Section */}
       <section className="container mx-auto px-6 py-16 bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 rounded-lg shadow-lg">
         <h2 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">
-          Our Popular Dishes
+          Nice Dishes
         </h2>
         {filteredFoodItems.length > 0 ? (
           <div className="flex overflow-x-auto space-x-8 py-4">
@@ -293,7 +344,7 @@ const Home = () => {
               return (
                 <div
                   key={item.id}
-                  className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-shrink-0 w-80 flex-col max-h-[450px]" // max height adjusted
+                  className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-shrink-0 w-80 flex-col max-h-[450px]"
                 >
                   {/* Food Image */}
                   <img
@@ -304,7 +355,7 @@ const Home = () => {
 
                   {/* Content Section */}
                   <div className="flex flex-col p-4 flex-grow justify-between">
-                    <div className="flex flex-col mb-3"> {/* Reduced margin */}
+                    <div className="flex flex-col mb-3">
                       {/* Food Name */}
                       <h3 className="text-2xl font-semibold text-gray-800 mb-1">
                         {item.name}
@@ -416,6 +467,9 @@ const Home = () => {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                   />
+                  <div className="mb-3">
+                        <h2 className="text-md">Delivery price is ₦1000</h2>
+                      </div>
                 </div>
               )}
 
@@ -423,12 +477,20 @@ const Home = () => {
                 <h4 className="text-lg font-semibold">Total Price: ₦{totalPrice}</h4>
               </div>
 
-              <button
-                onClick={handleConfirmOrder}
-                className="w-full py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition duration-200"
-              >
-                {loading ? "Processing..." : "Confirm Order"}
-              </button>
+              <div className="flex justify-between items-center gap-4">
+                <button
+                  onClick={handleConfirmOrder}
+                  className="px-8 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition duration-200"
+                >
+                  {loading ? "Processing..." : "Confirm Order"}
+                </button>
+                <button
+                  onClick={closeModal}
+                  className="px-8 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-200"
+                >
+                  Cancel Order
+                </button>
+              </div>
             </>
           )}
         </div>

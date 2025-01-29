@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
+import MessageModal from '../components/MessageModal'
 import { useLocation, useNavigate, Navigate } from "react-router-dom";
 
-const Login = ({ onSwitchToRegister }) => {
+const Login = ({ onSuccess, onSwitchToRegister }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [message, setMessage] = useState("");
+  const [showModal, setShowModal] = useState(true)
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -13,9 +17,17 @@ const Login = ({ onSwitchToRegister }) => {
 
   useEffect(() => {
     if (verificationStatus === "success") {
-      alert("Verification successful! You can now log in.");
+      setMessage("Verification successful! You can now log in.");
+      setShowModal(true)
     }
   }, [verificationStatus]);
+
+  // Check if user is authenticated on mount
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      setIsAuthenticated(true); // Update state if user is authenticated
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -33,27 +45,42 @@ const Login = ({ onSwitchToRegister }) => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.user.role);
         localStorage.setItem("user", JSON.stringify(data.user));
-        localStorage.setItem('email', data.user.email)
-        alert(data.message);
+        localStorage.setItem("profile", JSON.stringify(data.user));
+        localStorage.setItem("email", data.user.email);
+        setMessage(data.message);
+
+        // Update auth state to re-render
+        onSuccess();
+        setIsAuthenticated(true);
+        alert("successfully logged in")
+        setMessage("successfully logged in")
 
         // Use navigate to redirect programmatically
-        navigate("/home");
+        navigate("/");
+        setShowModal(false)
       } else {
-        alert(data.error || "Login failed");
+        setMessage(data.error || "Login failed");
       }
     } catch (error) {
       console.error("Error during login:", error);
-      alert("An error occurred during login. Please try again.");
+      setMessage("An error occurred during login. Please try again.");
     }
   };
 
+
   // Check if user is authenticated and redirect
-  if (localStorage.getItem("token")) {
-    return <Navigate to="/home" />;
+  if (isAuthenticated) {
+    return <Navigate to="/" />;
   }
 
   return (
     <div>
+    {/**message modal */}
+    {message && (
+        <MessageModal message={message} onClose={() => setMessage("")} />
+      )}
+      {showModal && (
+      <>
       <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
       <form onSubmit={handleLogin}>
         <div className="mb-4">
@@ -95,6 +122,8 @@ const Login = ({ onSwitchToRegister }) => {
           Sign Up
         </button>
       </p>
+      </>
+      )}
     </div>
   );
 };
