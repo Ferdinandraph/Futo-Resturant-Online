@@ -40,7 +40,7 @@ const RestaurantAdminDashboard = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [paymentList, setPaymentList] = useState(null);
 
-  const url = 'http://localhost:3300';
+  const url = 'http://localhost:10000';
 
   useEffect(() => {
     const profileString = localStorage.getItem("profile");
@@ -129,7 +129,7 @@ const RestaurantAdminDashboard = () => {
     if (newItem.image) formData.append("image", newItem.image);
   
     try {
-      await axios.post("http://localhost:3300/restaurant/menu", formData, {
+      await axios.post("http://localhost:10000/restaurant/menu", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
@@ -176,7 +176,7 @@ const RestaurantAdminDashboard = () => {
   
     try {
       // Make the PUT request to update the menu item
-      await axios.put(`http://localhost:3300/restaurant/menu/${selectedItem.id}`, formData, {
+      await axios.put(`http://localhost:10000/restaurant/menu/${selectedItem.id}`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
@@ -199,7 +199,7 @@ const RestaurantAdminDashboard = () => {
 
   const handleDeleteMenuItem = async (id) => {
     try {
-      await axios.delete(`http://localhost:3300/restaurant/menu/${id}`, {
+      await axios.delete(`http://localhost:10000/restaurant/menu/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       fetchMenuItems();
@@ -216,7 +216,7 @@ const RestaurantAdminDashboard = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get(`http://localhost:3300/restaurant/profile/${restaurantId}`);
+      const response = await axios.get(`http://localhost:10000/restaurant/profile/${restaurantId}`);
       console.log(response)
       if (response.data && response.data.profile) {
         const { user_id, name, address, image_url, contact_number, description } = response.data.profile;
@@ -255,7 +255,7 @@ const RestaurantAdminDashboard = () => {
 
     try {
       const method = profile.id ? "put" : "post";
-      const url = profile.id ? `http://localhost:3300/restaurant/profile/${profile.id}` : "http://localhost:3300/restaurant/profile";
+      const url = profile.id ? `http://localhost:10000/restaurant/profile/${profile.id}` : "http://localhost:10000/restaurant/profile";
       const response = await axios({
         method,
         url,
@@ -420,7 +420,7 @@ const RestaurantAdminDashboard = () => {
                   typeof profile.image === "string" ?
                   (
                   <img
-                    src={`http://localhost:3300/uploads/${profile.image}`}
+                    src={`http://localhost:10000/uploads/${profile.image}`}
                     alt="Restaurant"
                     className="mt-4 h-32 w-auto"
                   />
@@ -546,7 +546,7 @@ const RestaurantAdminDashboard = () => {
           src={
             item.picture_url instanceof File
               ? URL.createObjectURL(item.picture_url)
-              : `http://localhost:3300/uploads/${item.picture_url}`
+              : `http://localhost:10000/uploads/${item.picture_url}`
           }
           alt={item.name}
           className="w-full sm:w-28 h-28 object-cover rounded-lg mb-4 sm:mb-0"

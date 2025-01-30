@@ -33,7 +33,7 @@ const Login = ({ onSuccess, onSwitchToRegister }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3300/auth/login", {
+      const response = await fetch("http://localhost:10000/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

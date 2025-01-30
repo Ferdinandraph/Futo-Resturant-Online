@@ -50,8 +50,8 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const [menuResponse, restaurantsResponse] = await Promise.all([
-          axios.get(`http://localhost:3300/restaurant/menu`),
-          axios.get(`http://localhost:3300/restaurant/profile`),
+          axios.get(`http://localhost:10000/restaurant/menu`),
+          axios.get(`http://localhost:10000/restaurant/profile`),
         ]);
 
         const menuItems = menuResponse.data;
@@ -155,7 +155,7 @@ const Home = () => {
   
       // Initialize Payment
       const { data } = await axios.post(
-        "http://localhost:3300/api/paystack/initialize",
+        "http://localhost:10000/api/paystack/initialize",
         paymentData,
         {
           headers: {
@@ -373,7 +373,7 @@ const Home = () => {
                   >
                     {/* Food Image */}
                     <img
-                      src={`http://localhost:3300/uploads/${item.picture_url}`}
+                      src={`http://localhost:10000/uploads/${item.picture_url}`}
                       alt={item.name}
                       className="w-full h-40 object-cover rounded-t-lg"
                     />
@@ -388,7 +388,7 @@ const Home = () => {
                       {/* Restaurant Info */}
                       <div className="flex items-center mt-2">
                         <img
-                          src={`http://localhost:3300/uploads/${restaurant?.image_url}`}
+                          src={`http://localhost:10000/uploads/${restaurant?.image_url}`}
                           alt={`${restaurant?.name} logo`}
                           className="w-8 h-8 object-cover rounded-full border border-gray-300 shadow-sm"
                         />
@@ -555,7 +555,7 @@ const Home = () => {
               {/* Logo */}
               <div className="flex items-center space-x-2 w-1/3">
                 <img
-                  src={`http://localhost:3300/uploads/${restaurant.image_url}`}
+                  src={`http://localhost:10000/uploads/${restaurant.image_url}`}
                   alt={`${restaurant.name} logo`}
                   className="w-10 h-10 object-cover rounded-full border border-gray-300 shadow-sm"
                 />

@@ -9,7 +9,7 @@ const Verify = () => {
     useEffect(() => {
         const verifyUser = async () => {
             try {
-                const response = await fetch(`http://localhost:3300/auth/verify/${token}`, {
+                const response = await fetch(`http://localhost:10000/auth/verify/${token}`, {
                     method: 'GET',
                 });
 
