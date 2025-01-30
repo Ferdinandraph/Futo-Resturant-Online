@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3300;
 
 // Enable CORS
-app.use(cors({ origin: ["http://localhost:3000", "https://futo-resturant-online-2-h25e.onrender.com/"], credentials=true}));
+app.use(cors({ origin: ["http://localhost:3000", "https://futo-resturant-online-2-h25e.onrender.com/"], credentials:true}));
 
 // Middleware for parsing JSON
 app.use(express.json());
