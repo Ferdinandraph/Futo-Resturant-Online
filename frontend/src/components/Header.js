@@ -31,8 +31,9 @@ const Header = () => {
   const handleLogout = () => {
     localStorage.clear();
     setMessage("Successfully logged out");
-    alert("Successfully logged out");
-    navigate("/");
+    setTimeout(() => {
+      navigate('/');
+  }, 3000);
   };
 
   // Close modals

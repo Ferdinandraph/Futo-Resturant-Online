@@ -53,12 +53,13 @@ const Login = ({ onSuccess, onSwitchToRegister }) => {
         // Update auth state to re-render
         onSuccess();
         setIsAuthenticated(true);
-        alert("successfully logged in")
         setMessage("successfully logged in")
-
+        alert("successfully logged In")
         // Use navigate to redirect programmatically
-        navigate("/");
         setShowModal(false)
+        setTimeout(() => {
+          navigate('/');
+      }, 3000);
       } else {
         setMessage(data.error || "Login failed");
       }

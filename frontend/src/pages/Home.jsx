@@ -279,7 +279,7 @@ const Home = () => {
               </div>
               <h5 className="text-xl font-semibold mb-4">Choose A Tasty Dish</h5>
               <p className="text-gray-700">
-                Dictum velit. Duis at purus enim. Cras massa massa, maximus sit amet finibus quis, pharetra eu erat.
+              Selecting a tasty dish is all about balancing flavors, textures, and ingredients that excite your palate.
               </p>
             </div>
           </div>
@@ -290,7 +290,7 @@ const Home = () => {
               </div>
               <h5 className="text-xl font-semibold mb-4">Pick Up Or Delivery</h5>
               <p className="text-gray-700">
-                Purus enim. Cras massa massa, maximus sit amet finibus quis, pharetra eu erat.
+              Enjoy your favorite meals just the way you like them—whether you prefer the convenience of delivery straight to your doorstep or the speed of picking up your order on the go.
               </p>
             </div>
           </div>
