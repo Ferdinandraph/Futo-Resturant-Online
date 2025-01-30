@@ -16,7 +16,7 @@ const Register = ({onSuccess, onSwitchToLogin}) => {
         e.preventDefault(); // Prevent form submission
 
         try {
-            const response = await axios.post('http://localhost:3300/auth/register', {
+            const response = await axios.post('http://0.0.0.0:1000/auth/register', {
                 name,
                 email,
                 password,

@@ -20,7 +20,7 @@ const PaymentStatus = () => {
             try {
                 const token = localStorage.getItem("token"); // Assuming you store the auth token in localStorage
                 const { data } = await axios.get(
-                    `http://localhost:3300/api/paystack/verify/${reference}`,
+                    `http://0.0.0.0:1000/api/paystack/verify/${reference}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`, // Include the token in the Authorization header

@@ -23,7 +23,7 @@ const RestaurantProfile = () => {
 
     // Fetch profile data when component mounts
     axios
-      .get("http://localhost:3300/restaurant/profile", {
+      .get("http://0.0.0.0:1000/restaurant/profile", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((response) => {
@@ -63,7 +63,7 @@ const RestaurantProfile = () => {
     }
 
     axios
-      .put("http://localhost:3300/restaurant/profile", formData, {
+      .put("http://0.0.0.0:1000/restaurant/profile", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
@@ -113,7 +113,7 @@ const RestaurantProfile = () => {
           />
           {profile.image && !(profile.image instanceof File) && (
             <img
-              src={`http://localhost:3300${profile.image}`}
+              src={`http://0.0.0.0:1000${profile.image}`}
               alt="Restaurant"
               className="mt-4 h-32 w-auto"
             />

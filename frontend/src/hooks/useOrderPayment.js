@@ -36,7 +36,7 @@ const useOrderPayment = () => {
 
       // Initialize Payment
       const { data } = await axios.post(
-        "http://localhost:3300/api/paystack/initialize",
+        "http://0.0.0.0:1000/api/paystack/initialize",
         paymentData,
         {
           headers: {
