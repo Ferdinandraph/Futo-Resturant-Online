@@ -161,6 +161,17 @@ const verifyPayment = async (req, res) => {
             
                 [orderId]  // <-- Missing a comma here between the query and parameters
             );
+
+            const [restaurantNameRow] = await db.query(
+                `SELECT r.name AS restaurant_name
+                 FROM restaurants r
+                 JOIN users u ON u.user_id = r.user_id  
+                 JOIN orders o ON o.restaurant_id = r.user_id
+                 WHERE o.id = ?`, 
+                [orderId]
+            );
+            
+            
             
 
             console.log(restaurantRows)
@@ -169,7 +180,10 @@ const verifyPayment = async (req, res) => {
             }
 
             const restaurantEmail = restaurantRows[0].email;
-            const restaurantName = restaurantRows[0].name
+
+            console.log(restaurantNameRow);
+            const restaurantName = restaurantNameRow[0].restaurant_name;
+            console.log(restaurantRows)
 
             // Prepare and send the email to the restaurant
             try {

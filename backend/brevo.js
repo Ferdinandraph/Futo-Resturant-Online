@@ -54,7 +54,7 @@ const sendPaymentConfirmationEmail = async (userEmail, userName, orderId, paymen
           <p>Customer Email: <strong>${customerEmail}</strong></p>
           <p>Customer Location: <strong>${customerLocation}</strong></p>
           <p>Thank you for using our service!</p>
-          <p>If you did not make this payment, please contact us immediately.</p>
+          <p>If you did not recieve this payment, please contact us immediately.</p>
       `,
   };
 
