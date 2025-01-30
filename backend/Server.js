@@ -6,7 +6,7 @@ const restaurantRoutes = require("./routes/restaurantRoutes");
 const paystackRoutes = require('./routes/paystackRoutes')
 
 const app = express();
-const PORT = process.env.PORT || 1000;
+const PORT = process.env.PORT || 3300;
 
 // Enable CORS
 app.use(cors({ origin: "http://localhost:3000" }));
@@ -34,6 +34,6 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-app.listen(PORT, 'localhost', () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on ${PORT}`);
 });
