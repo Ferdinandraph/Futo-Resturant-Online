@@ -112,13 +112,21 @@ const verifyPayment = async (req, res) => {
 
         if (paymentStatus === "success") {
             // Fetch the order_id from the orders database using the payment_ref
-            const [orderRows] = await db.query(`SELECT id FROM orders WHERE payment_ref = ?`, [reference]);
+            const [orderRows] = await db.query(
+                `SELECT o.id, o.location, u.email AS customer_email
+                 FROM orders o
+                 JOIN users u ON o.customer_id = u.user_id
+                 WHERE o.payment_ref = ?`,
+                [reference]
+            );
 
             if (orderRows.length === 0) {
                 return res.status(404).json({ error: "Order not found for the given payment reference." });
             }
 
             const orderId = orderRows[0].id;
+            const customerEmail = orderRows[0].customer_email;
+            const customerLocation = orderRows[0].location;
 
             // Update the order status to 'confirmed'
             await db.query(`UPDATE orders SET status = ? WHERE id = ?`, ["confirmed", orderId]);
@@ -161,16 +169,19 @@ const verifyPayment = async (req, res) => {
             }
 
             const restaurantEmail = restaurantRows[0].email;
+            const restaurantName = restaurantRows[0].name
 
             // Prepare and send the email to the restaurant
             try {
                 await sendPaymentConfirmationEmail(
                     restaurantEmail,
-                    'Restaurant Manager',
+                    restaurantName,
                     orderId,
                     paymentStatus,
                     response.data.data.amount,
-                    itemRows
+                    itemRows,
+                    customerEmail,   // Include customer email
+                    customerLocation // Include customer location
                 );
             } catch (error) {
                 console.error("Failed to send payment confirmation email:", error);

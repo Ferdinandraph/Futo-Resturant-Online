@@ -34,7 +34,7 @@ const sendVerificationEmail = async (userEmail, userName, verificationLink) => {
     throw error;
   }
 };
-const sendPaymentConfirmationEmail = async (userEmail, userName, orderId, paymentStatus, amount, items) => {
+const sendPaymentConfirmationEmail = async (userEmail, userName, orderId, paymentStatus, amount, items, customerEmail, customerLocation) => {
   const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
   // Construct the email content with payment details
@@ -47,10 +47,12 @@ const sendPaymentConfirmationEmail = async (userEmail, userName, orderId, paymen
       subject: 'Payment Successful - Order Confirmation',
       htmlContent: `
           <p>Hi ${userName},</p>
-          <p>Your order with the ID <strong>${orderId}</strong> has been successfully processed.</p>
+          <p>An order with the ID <strong>${orderId}</strong> has been successfully processed.</p>
           <p>Transaction Status: <strong>${paymentStatus}</strong></p>
           <p>Amount: <strong>${amountInCurrency} (in local currency)</strong></p>
           <p>Items: <strong>${itemsList}</strong></p>
+          <p>Customer Email: <strong>${customerEmail}</strong></p>
+          <p>Customer Location: <strong>${customerLocation}</strong></p>
           <p>Thank you for using our service!</p>
           <p>If you did not make this payment, please contact us immediately.</p>
       `,
@@ -67,5 +69,6 @@ const sendPaymentConfirmationEmail = async (userEmail, userName, orderId, paymen
       throw error;
   }
 };
+
 
 module.exports = { sendVerificationEmail, sendPaymentConfirmationEmail };
