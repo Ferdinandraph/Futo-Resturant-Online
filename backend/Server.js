@@ -8,8 +8,14 @@ const paystackRoutes = require('./routes/paystackRoutes')
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+const corsOptions = {
+  origin: ["https://futo-resturant-online-2-h25e.onrender.com, http://localhost:3000"],
+  credentials:true,
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allow methods you use
+  allowedHeaders: ["Content-Type", "Authorization"],  // Customize headers if needed
+};
 // Enable CORS
-app.use(cors({ origin: ["http://localhost:3000", "https://futo-resturant-online-2-h25e.onrender.com/"], credentials:true}));
+app.use(cors( corsOptions));
 
 // Middleware for parsing JSON
 app.use(express.json());
