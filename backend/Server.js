@@ -6,7 +6,7 @@ const restaurantRoutes = require("./routes/restaurantRoutes");
 const paystackRoutes = require('./routes/paystackRoutes')
 
 const app = express();
-const PORT = process.env.PORT || 3300;
+const PORT = process.env.PORT || 1000;
 
 // Enable CORS
 app.use(cors({ origin: "http://localhost:3000" }));
