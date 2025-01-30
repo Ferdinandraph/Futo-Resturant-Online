@@ -216,9 +216,10 @@ const RestaurantAdminDashboard = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get("http://localhost:3300/restaurant/profile");
-      if (response.data.length > 0) {
-        const { user_id, name, address, image_url, contact_number, description } = response.data[0];
+      const response = await axios.get(`http://localhost:3300/restaurant/profile/${restaurantId}`);
+      console.log(response)
+      if (response.data && response.data.profile) {
+        const { user_id, name, address, image_url, contact_number, description } = response.data.profile;
         const newProfile = { id: user_id, name, address, image: image_url, contact_number, description };
         setProfile(newProfile);
         localStorage.setItem("profile", JSON.stringify(newProfile));
@@ -351,7 +352,7 @@ const RestaurantAdminDashboard = () => {
     <div className="container mx-auto px-6 py-12">
 
 
-      <h1 className="text-3xl font-bold mb-6">Welcome, {profile.name}</h1>
+      <h1 className="text-3xl font-bold mt-6 mb-4">Welcome, {profile.name}</h1>
       {console.log(profile.name)}
 
       {/* Profile Setup Modal */}
@@ -485,9 +486,9 @@ const RestaurantAdminDashboard = () => {
       </section>
 
       {/* Buttons for Menu Management */}
-      <div className="flex justify-between mb-8">
+      <div className="flex flex-col md:flex-row md:flex-wrap justify-between mb-8 space-y-4 md:space-y-0">
         {/* Left section: Add Menu and Show Menus / Close Menu */}
-        <div className="flex space-x-4">
+        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
           <button
             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             onClick={() => setShowModal(true)}
@@ -509,7 +510,7 @@ const RestaurantAdminDashboard = () => {
         </div>
 
         {/* Right section: Set Payment and Show Details */}
-        <div className="flex space-x-4">
+        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
           <button
             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             onClick={() => setShowPaymentModal(true)}
@@ -531,59 +532,59 @@ const RestaurantAdminDashboard = () => {
         </div>
       </div>
 
+
       {/* List of Menu Items */}
-      {menuItems.length > 0 && (
-      <div className="grid gap-6">
-        {menuItems.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-center p-4 bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow"
-          >
-            {/* Image on the left */}
-            <img
-              src={
-                item.picture_url instanceof File
-                  ? URL.createObjectURL(item.picture_url)
-                  : `http://localhost:3300/uploads/${item.picture_url}`
-              }
-              alt={item.name}
-              className="w-28 h-28 object-cover rounded-lg"
-            />
+{menuItems.length > 0 && (
+  <div className="grid gap-6">
+    {menuItems.map((item) => (
+      <div
+        key={item.id}
+        className="flex flex-col sm:flex-row items-center p-4 bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow"
+      >
+        {/* Image on the left */}
+        <img
+          src={
+            item.picture_url instanceof File
+              ? URL.createObjectURL(item.picture_url)
+              : `http://localhost:3300/uploads/${item.picture_url}`
+          }
+          alt={item.name}
+          className="w-full sm:w-28 h-28 object-cover rounded-lg mb-4 sm:mb-0"
+        />
 
-            {/* Content in the center */}
-            <div className="flex-1 text-center px-6">
-              <h3 className="text-xl font-semibold text-gray-800">{item.name}</h3>
-              <p className="text-sm text-gray-600 mt-2">{item.description}</p>
-            </div>
+        {/* Content in the center */}
+        <div className="flex-1 text-center sm:text-left px-4 sm:px-6">
+          <h3 className="text-xl font-semibold text-gray-800">{item.name}</h3>
+          <p className="text-sm text-gray-600 mt-2">{item.description}</p>
+        </div>
 
-            {/* Price on the right */}
-            <div className="text-right">
-              <p className="text-lg font-bold text-green-600">₦{item.price}</p>
-            </div>
+        {/* Price on the right */}
+        <div className="text-center sm:text-right mt-4 sm:mt-0">
+          <p className="text-lg font-bold text-green-600">₦{item.price}</p>
+        </div>
 
-            {/* Buttons */}
-            <div className="ml-6 flex flex-col space-y-2">
-              <button
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow transition-transform transform hover:scale-105"
-                onClick={() => handleEditClick(item)}
-              >
-                Edit
-              </button>
-              <button
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow transition-transform transform hover:scale-105"
-                onClick={() => handleDeleteMenuItem(item.id)}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+       {/* Buttons */}
+      <div className="mt-4 sm:mt-0 sm:ml-6 flex flex-col sm:flex-row sm:justify-between sm:space-x-2 space-y-2 sm:space-y-0">
+        {/* Edit Button */}
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow transition-transform transform hover:scale-105"
+          onClick={() => handleEditClick(item)}
+        >
+          Edit
+        </button>
+
+        {/* Delete Button */}
+        <button
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow transition-transform transform hover:scale-105"
+          onClick={() => handleDeleteMenuItem(item.id)}
+        >
+          Delete
+        </button>
       </div>
-    )}
-
-
-
-
+      </div>
+    ))}
+  </div>
+)}
       {/* Add Menu Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">

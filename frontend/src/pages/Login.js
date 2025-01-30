@@ -48,6 +48,7 @@ const Login = ({ onSuccess, onSwitchToRegister }) => {
         localStorage.setItem("profile", JSON.stringify(data.user));
         localStorage.setItem("email", data.user.email);
         setMessage(data.message);
+        
 
         // Update auth state to re-render
         onSuccess();

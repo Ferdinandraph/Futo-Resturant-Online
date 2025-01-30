@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { motion } from "framer-motion";
 import carousel2 from "../images/carousel2.jpg";
 import pizza1 from "../images/foodbaker-special-pizza-1 (1).jpg";
 import masonry8 from "../images/fb_masonary_8-1.jpg";
@@ -19,6 +20,7 @@ const Home = () => {
   const [orderType, setOrderType] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [visibleCount, setVisibleCount] = useState(8);
   const [location, setLocation] = useState("");
   const [message, setMessage] = useState("");
   const [showLogin, setShowLogin] = useState(false);
@@ -188,24 +190,46 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gray-100">
     {/* Hero Section */}
-    <div className="relative w-full bg-gray-800 py-16">
-    <div className="text-center text-white px-6">
-      <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-wider">
+<motion.div
+  className="relative w-full bg-gray-800 py-16"
+  initial={{ opacity: 0, y: 50 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 1.5, ease: "easeOut" }} // Slower and smoother fade-in
+>
+  <div className="flex flex-col items-center md:flex-row justify-between text-white px-6 max-w-5xl mx-auto">
+    {/* Left Content */}
+    <motion.div
+      className="md:w-2/3 text-left"
+      initial={{ opacity: 0, x: -50 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 1.5, ease: "easeOut" }} // Staggered effect
+    >
+      <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-wider text-green-500">
         Welcome
       </h1>
       <p className="text-lg mb-6 leading-relaxed">
-        Explore your favorite dishes and place an order today!
+        Welcome to our food ordering platform!
+        Explore your favorite dishes and restaurants
+        place an order today.
       </p>
-      {isAuthenticated && role === "restaurant" && (
-            <button
-              onClick={handleNavigateToDashboard}
-              className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transform hover:scale-105 transition duration-300"
-            >
-              Go to Dashboard
-            </button>
-          )}
-    </div>
+    </motion.div>
+
+    {/* Right Content */}
+    {isAuthenticated && role === "restaurant" && (
+      <motion.button
+        onClick={handleNavigateToDashboard}
+        className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transform hover:scale-105 transition duration-300"
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }} // Button appears after a delay
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        Go to Dashboard
+      </motion.button>
+    )}
   </div>
+</motion.div>
 
 
 
@@ -329,93 +353,86 @@ const Home = () => {
 
 
       {/* Food Items Section */}
-      <section className="container mx-auto px-6 py-16 bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 rounded-lg shadow-lg">
-        <h2 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">
+      <section className="container mx-auto px-6 py-16 bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 rounded-lg shadow-lg" id="menu-section">
+        <h2 className="text-3xl font-extrabold text-gray-800 mb-8 text-center">
           Nice Dishes
         </h2>
+
         {filteredFoodItems.length > 0 ? (
-          <div className="flex overflow-x-auto space-x-8 py-4">
-            {filteredFoodItems.map((item) => {
-              
-              const restaurant = filteredRestaurants.find(
-                (rest) => rest.user_id === item.restaurant_id
-              );
-              
-              return (
-                <div
-                  key={item.id}
-                  className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-shrink-0 w-80 flex-col max-h-[450px]"
-                >
-                  {/* Food Image */}
-                  <img
-                    src={`http://localhost:3300/uploads/${item.picture_url}`}
-                    alt={item.name}
-                    className="w-full h-48 object-cover rounded-t-lg"
-                  />
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {filteredFoodItems.slice(0, visibleCount).map((item) => {
+                const restaurant = filteredRestaurants.find(
+                  (rest) => rest.user_id === item.restaurant_id
+                );
 
-                  {/* Content Section */}
-                  <div className="flex flex-col p-4 flex-grow justify-between">
-                    <div className="flex flex-col mb-3">
-                      {/* Food Name */}
-                      <h3 className="text-2xl font-semibold text-gray-800 mb-1">
-                        {item.name}
-                      </h3>
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col w-full max-h-[400px]"
+                  >
+                    {/* Food Image */}
+                    <img
+                      src={`http://localhost:3300/uploads/${item.picture_url}`}
+                      alt={item.name}
+                      className="w-full h-40 object-cover rounded-t-lg"
+                    />
 
-                      {/* Description */}
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-3">
-                        {item.description || "No description available for this dish."}
+                    {/* Content Section */}
+                    <div className="p-4 flex flex-col justify-between flex-grow">
+                      <h3 className="text-xl font-semibold text-gray-800">{item.name}</h3>
+                      <p className="text-gray-600 text-sm line-clamp-2">
+                        {item.description || "No description available."}
                       </p>
 
                       {/* Restaurant Info */}
-                      <div className="flex items-center mb-3"> {/* Reduced margin */}
-                        {/* Restaurant Logo */}
+                      <div className="flex items-center mt-2">
                         <img
                           src={`http://localhost:3300/uploads/${restaurant?.image_url}`}
                           alt={`${restaurant?.name} logo`}
-                          className="w-10 h-10 object-cover rounded-full border border-gray-300 shadow-sm"
+                          className="w-8 h-8 object-cover rounded-full border border-gray-300 shadow-sm"
                         />
-                        <div className="ml-3">
-                          {/* Restaurant Name */}
-                          <span className="font-semibold text-gray-700">
+                        <div className="ml-2">
+                          <span className="text-sm font-semibold text-gray-700">
                             {restaurant?.name}
                           </span>
-                          {/* Restaurant Address */}
-                          <p className="text-gray-500 text-sm">{restaurant?.address}</p>
+                          <p className="text-gray-500 text-xs">{restaurant?.address}</p>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Price and Order Button */}
-                    <div className="mt-2 flex items-center justify-between">
-                      <p className="text-green-600 font-bold text-lg">
-                        ₦{item.price}
-                      </p>
-
-                      {/* Order Now Button */}
-                      <button
-                        onClick={() => handleOrderNow(item)}
-                        className={`${
-                          loading
-                            ? "bg-gray-300 text-gray-500"
-                            : "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-                        } px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-200 text-sm font-semibold`}
-                        disabled={loading}
-                      >
-                        {loading ? "Processing..." : "Order Now"}
-                      </button>
+                      {/* Price and Order Button */}
+                      <div className="mt-2 flex items-center justify-between">
+                        <p className="text-green-600 font-bold text-lg">₦{item.price}</p>
+                        <button
+                          onClick={() => handleOrderNow(item)}
+                          className="bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 transition text-sm font-semibold"
+                          disabled={loading}
+                        >
+                          {loading ? "Processing..." : "Order Now"}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+
+            {/* View More Button */}
+            {visibleCount < filteredFoodItems.length && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => setVisibleCount((prev) => prev + 6)}
+                  className="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition"
+                >
+                  View More
+                </button>
+              </div>
+            )}
+          </>
         ) : (
-          <p className="text-center text-gray-600 text-lg">
-            No food items match your search.
-          </p>
+          <p className="text-center text-gray-600 text-lg">No food items match your search.</p>
         )}
       </section>
-
 
       {showModal && (
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -499,78 +516,91 @@ const Home = () => {
   }
 
       {/* Popular Restaurants Section */}
-      <section className="container mx-auto px-6 py-16 bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 rounded-lg shadow-lg">
-        <div className="text-center mb-10">
-          <h2 className="text-4xl font-extrabold text-gray-800 mb-4">
-            Discover Popular Restaurants
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Explore the finest dining spots around you! Whether you're craving local favorites or international cuisines, we've got you covered. Dive into our selection of top-rated restaurants and order your favorite meals in just a few clicks.
-          </p>
-        </div>
-        {filteredRestaurants.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {filteredRestaurants.map((restaurant) => (
-              <div
-                key={restaurant.id}
-                className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition duration-300 transform hover:-translate-y-1 flex flex-col"
-              >
-                {/* Restaurant Display Image */}
+      <section className="container mx-auto px-6 py-16 bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 rounded-lg shadow-lg" id="restaurants-section">
+  <div className="text-center mb-10">
+    <h2 className="text-4xl font-extrabold text-gray-800 mb-4">
+      Discover Popular Restaurants
+    </h2>
+    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+      Explore the finest dining spots around you! Whether you're craving local favorites or international cuisines, we've got you covered. Dive into our selection of top-rated restaurants and order your favorite meals in just a few clicks.
+    </p>
+  </div>
+  {filteredRestaurants.length > 0 ? (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {filteredRestaurants.slice(0, visibleCount).map((restaurant) => (
+        <div
+          key={restaurant.id}
+          className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col w-full max-h-[400px]"
+        >
+          {/* Restaurant Display Image */}
+          <img
+            src={restaurant.displayImage}
+            alt={restaurant.name}
+            className="w-full h-40 object-cover rounded-t-lg"
+          />
+
+          <div className="p-4 bg-gray-50 flex flex-col flex-grow w-full">
+            {/* Restaurant Name */}
+            <h3 className="text-xl font-bold text-gray-800 truncate bg-blue-50 rounded-md px-2 py-1 mb-3">
+              {restaurant.name}
+            </h3>
+
+            {/* Description */}
+            <p className="text-gray-600 text-sm mb-3 line-clamp-3">
+              {restaurant.description || "No description available for this restaurant."}
+            </p>
+
+            {/* Footer: Logo, Address, Time, Order Now */}
+            <div className="flex items-center justify-between mt-auto bg-gray-100 p-2 rounded-md w-full">
+              {/* Logo */}
+              <div className="flex items-center space-x-2 w-1/3">
                 <img
-                  src={restaurant.displayImage}
-                  alt={restaurant.name}
-                  className="h-56 w-full object-cover"
+                  src={`http://localhost:3300/uploads/${restaurant.image_url}`}
+                  alt={`${restaurant.name} logo`}
+                  className="w-10 h-10 object-cover rounded-full border border-gray-300 shadow-sm"
                 />
-
-                <div className="p-6 bg-gray-50 flex flex-col flex-grow">
-                  {/* Restaurant Name */}
-                  <h3 className="text-2xl font-bold text-gray-800 truncate bg-blue-50 rounded-md px-2 py-1 mb-4">
-                    {restaurant.name}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {restaurant.description || "No description available for this restaurant."}
-                  </p>
-
-                  {/* Footer: Logo, Address, Time, Order Now */}
-                  <div className="flex items-center justify-between mt-auto bg-gray-100 p-3 rounded-md">
-                    {/* Logo */}
-                    <div className="flex items-center space-x-3">
-                      <img
-                        src={`http://localhost:3300/uploads/${restaurant.image_url}`}
-                        alt={`${restaurant.name} logo`}
-                        className="w-10 h-10 object-cover rounded-full border border-gray-300 shadow-sm"
-                      />
-                      {/* Address */}
-                      <span className="text-sm text-gray-600 truncate max-w-[150px]">
-                        {restaurant.address}
-                      </span>
-                    </div>
-
-                    {/* Delivery Time */}
-                    <span className="text-sm text-gray-500 font-medium">
-                      10 min
-                    </span>
-
-                    {/* Order Button */}
-                    <button
-                      onClick={() => visitRestaurant(restaurant.user_id)}
-                      className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition duration-200 text-sm font-semibold shadow-md"
-                    >
-                      Check out
-                    </button>
-                  </div>
-                </div>
+                {/* Address */}
+                <span className="text-sm text-gray-600 truncate max-w-[200px]">
+                  {restaurant.address}
+                </span>
               </div>
-            ))}
+
+              {/* Delivery Time */}
+              <span className="text-sm text-gray-500 font-medium w-1/3 text-center">
+                10 min
+              </span>
+
+              {/* Order Button */}
+              <button
+                onClick={() => visitRestaurant(restaurant.user_id)}
+                className="bg-gradient-to-r from-green-500 to-green-600 text-white px-1 py-1 rounded-md hover:from-green-600 hover:to-green-700 transition duration-200 text-sm font-semibold shadow-md w-1/3"
+              >
+                Check out
+              </button>
+            </div>
           </div>
-        ) : (
-          <p className="text-center text-gray-600 text-lg">
-            No restaurants match your search.
-          </p>
-        )}
-      </section>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p className="text-center text-gray-600 text-lg">
+      No restaurants match your search.
+    </p>
+  )}
+
+  {/* Load More Button */}
+  {visibleCount < filteredRestaurants.length && (
+    <div className="flex justify-center mt-6">
+      <button
+        onClick={setVisibleCount((prevCount) => prevCount + 6)}
+        className="bg-gradient-to-r from-gray-700 to-gray-900 text-white px-6 py-2 rounded-lg hover:from-gray-800 hover:to-black transition duration-200 text-sm font-semibold shadow-md"
+      >
+        View More
+      </button>
+    </div>
+  )}
+</section>
+
     </div>
   );
 };

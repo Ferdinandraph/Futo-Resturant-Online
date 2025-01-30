@@ -101,6 +101,7 @@ const verifyPayment = async (req, res) => {
     }
 
     try {
+        // Verify payment with Paystack
         const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
             headers: {
                 Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
@@ -118,22 +119,24 @@ const verifyPayment = async (req, res) => {
             }
 
             const orderId = orderRows[0].id;
-            
+
             // Update the order status to 'confirmed'
             await db.query(`UPDATE orders SET status = ? WHERE id = ?`, ["confirmed", orderId]);
 
-            console.log(orderId);
+            console.log(`Order ID: ${orderId}`);
 
+            // Fetch order items
             const [itemRows] = await db.query(
-                `SELECT oi.food_item_id, oi.quantity, oi.price 
+                `SELECT oi.food_item_id, oi.quantity, oi.price, m.name AS food_name
                  FROM order_items oi
                  JOIN orders o ON oi.order_id = o.id
-                 WHERE o.id = ?`, // Use `o.id` to match the correct order ID
-                [orderId] // The order ID parameter should be passed here
+                 JOIN menu m ON oi.food_item_id = m.id
+                 WHERE o.id = ?`,
+                [orderId]
             );
             
-
-            console.log(itemRows);
+            
+            console.log(itemRows[0].food_name)
 
             if (itemRows.length === 0) {
                 return res.status(404).json({ error: "No items found for this order." });
@@ -141,14 +144,18 @@ const verifyPayment = async (req, res) => {
 
             // Fetch the restaurant email associated with the order
             const [restaurantRows] = await db.query(
-                `SELECT u.email 
-                 FROM users u
-                 JOIN restaurants r ON r.user_id = u.user_id
-                 JOIN orders o ON o.restaurant_id = r.id
-                 WHERE o.id = ?`,
-                [orderId]
+                `SELECT u.email
+                FROM users u
+                JOIN restaurants r ON r.user_id = u.user_id
+                JOIN orders o ON o.restaurant_id = r.user_id
+                JOIN order_items oi ON oi.order_id = o.id
+                WHERE oi.order_id = ?`,
+            
+                [orderId]  // <-- Missing a comma here between the query and parameters
             );
+            
 
+            console.log(restaurantRows)
             if (restaurantRows.length === 0) {
                 return res.status(404).json({ error: "Restaurant not found for the given order." });
             }
@@ -156,14 +163,19 @@ const verifyPayment = async (req, res) => {
             const restaurantEmail = restaurantRows[0].email;
 
             // Prepare and send the email to the restaurant
-            await sendPaymentConfirmationEmail(
-                restaurantEmail, 
-                'Restaurant Manager', 
-                orderId, 
-                paymentStatus, 
-                response.data.data.amount, 
-                itemRows
-            );
+            try {
+                await sendPaymentConfirmationEmail(
+                    restaurantEmail,
+                    'Restaurant Manager',
+                    orderId,
+                    paymentStatus,
+                    response.data.data.amount,
+                    itemRows
+                );
+            } catch (error) {
+                console.error("Failed to send payment confirmation email:", error);
+                // Optionally, you can log this error to a monitoring system
+            }
 
             // Final response to the client
             return res.status(200).json({
@@ -171,16 +183,13 @@ const verifyPayment = async (req, res) => {
                 data: response.data.data,
             });
         } else {
-            return res.status(400).json({ error: "Payment verification failed." });
+            return res.status(400).json({ error: "Payment verification failed. Status: " + paymentStatus });
         }
     } catch (error) {
         console.error("Error verifying payment:", error.response?.data || error.message);
-        return res.status(500).json({ error: "Failed to verify payment." });
+        return res.status(500).json({ error: "Failed to verify payment. Please try again later." });
     }
 };
-
-
-
 
 
 // Fetch transaction details

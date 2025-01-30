@@ -3,23 +3,23 @@ import { useParams } from "react-router-dom";
 import { FaStar } from 'react-icons/fa';
 import axios from "axios";
 import carousel3 from '../images/carousel3.jpg';
-import MessageModal from '../components/MessageModal'
+import MessageModal from '../components/MessageModal';
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 
 const RestaurantPage = () => {
   const [restaurant, setRestaurant] = useState([]);
   const { restaurantId } = useParams();
-  const [orderType, setOrderType] = useState(""); // Store order type
-  const [showModal, setShowModal] = useState(false); // Control the visibility of the modal
-  const [menu, setMenu] = useState([]); // Menu state
-  const [filteredMenu, setFilteredMenu] = useState([]); // Filtered menu state
-  const [categories, setCategories] = useState([]); // Categories state
+  const [orderType, setOrderType] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [menu, setMenu] = useState([]);
+  const [filteredMenu, setFilteredMenu] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [quantity, setQuantity] = useState(1); // Default to 1 item
-  const [location, setLocation] = useState(""); // Default location is empty
+  const [quantity, setQuantity] = useState(1);
+  const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(""); // Message state for custom pop-up
+  const [message, setMessage] = useState("");
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
 
@@ -29,8 +29,7 @@ const RestaurantPage = () => {
     const fetchRestaurantData = async () => {
       try {
         const restaurantResponse = await axios.get(`http://localhost:3300/restaurant/profile/${restaurantId}`);
-        const restaurant = restaurantResponse.data;
-        setRestaurant(restaurant.profile);
+        setRestaurant(restaurantResponse.data.profile);
       } catch (err) {
         console.error('Error fetching restaurant:', err);
       }
@@ -39,9 +38,8 @@ const RestaurantPage = () => {
     const fetchMenuData = async () => {
       try {
         const menuResponse = await axios.get(`http://localhost:3300/restaurant/menu/${restaurantId}`);
-        const menu = menuResponse.data;
-        setMenu(menu);
-        setFilteredMenu(menu); // Initially show all menu items
+        setMenu(menuResponse.data);
+        setFilteredMenu(menuResponse.data);
       } catch (err) {
         console.error('Error fetching menu:', err);
       }
@@ -62,26 +60,26 @@ const RestaurantPage = () => {
   }, [restaurantId]);
 
   const closeModal = () => {
-    setShowLogin(false)
-    setShowRegister(false)
-    setShowModal(false)
-  }
+    setShowLogin(false);
+    setShowRegister(false);
+    setShowModal(false);
+  };
 
   const handleSuccess = () => {
-    closeModal(); // Close the modal after successful login/registration
+    closeModal();
   };
 
   const handleOrderNow = (item) => {
-    if (!localStorage.getItem("token")) { // Check if user is not authenticated
+    if (!localStorage.getItem("token")) {
       setShowLogin(true);
       return;
     }
-    setSelectedItem(item); // Store the selected item
+    setSelectedItem(item);
     setShowModal(true);
   };
 
   const handleOrderTypeSelect = (type) => {
-    setOrderType(type); // Set the order type
+    setOrderType(type);
   };
 
   const handleConfirmOrder = () => {
@@ -89,33 +87,31 @@ const RestaurantPage = () => {
       setMessage("Please fill in all required fields.");
       return;
     }
-
-    processOrder(orderType); // Proceed with the order
+    processOrder(orderType);
     setShowModal(false);
   };
 
   let totalPrice = selectedItem ? selectedItem.price * quantity : 0;
-  if (orderType=="delivery"){
+  if (orderType === "delivery") {
     totalPrice = totalPrice + 1000;
   }
 
   const processOrder = async (orderType) => {
     try {
-      setLoading(true); // Set loading state to true while processing the order
+      setLoading(true);
       const userEmail = localStorage.getItem("email");
-      const { price, id, restaurant_id } = selectedItem; // Get item details
+      const { price, id, restaurant_id } = selectedItem;
 
       const paymentData = {
         email: userEmail,
-        amount: totalPrice * 100, // Multiply price by quantity
+        amount: totalPrice * 100,
         id,
         restaurantId: restaurant_id,
         orderType,
-        location, // Add location for delivery orders
-        quantity, // Include quantity in the payment data
+        location,
+        quantity,
       };
 
-      // Initialize Payment
       const { data } = await axios.post(
         "http://localhost:3300/api/paystack/initialize",
         paymentData,
@@ -126,23 +122,21 @@ const RestaurantPage = () => {
         }
       );
 
-      // Redirect to Paystack Payment URL
       window.location.href = data.authorization_url;
     } catch (err) {
       console.error("Payment error:", err);
-      setMessage("error initializing payment")
+      setMessage("error initializing payment");
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
-  // Function to filter items by selected category
-  const filterByCategory = (category) => {
-    if (category === "All") {
-      setFilteredMenu(menu); // Show all items if "All" category is selected
+  const filterByCategory = (categoryId) => {
+    if (categoryId === "All") {
+      setFilteredMenu(menu);
     } else {
-      const filteredItems = menu.filter(item => item.category === category);
-      setFilteredMenu(filteredItems); // Set filtered items based on selected category
+      const filteredItems = menu.filter(item => item.category_id === categoryId);
+      setFilteredMenu(filteredItems);
     }
   };
 
@@ -150,7 +144,6 @@ const RestaurantPage = () => {
     <div className="min-h-screen bg-gray-100">
       {restaurant && (
         <>
-          {/* Restaurant Details Section */}
           <section
             className="bg-cover bg-center relative w-full h-[450px]"
             style={{ backgroundImage: `url(${carousel3})` }}
@@ -159,12 +152,12 @@ const RestaurantPage = () => {
               <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center lg:items-start">
                 <div className="lg:w-1/3 flex justify-center items-center lg:justify-start">
                   <img
-                    src={restaurant.image}
-                    alt={`${restaurant.name}`}
-                    className="w-full max-w-sm h-auto rounded-lg shadow-lg"
+                    src={`http://localhost:3300/uploads/${restaurant.image_url}`}
+                    alt={`${restaurant.name} logo`}
+                    className="w-25 h-25 object-cover rounded-full border border-gray-300 shadow-sm"
                   />
                 </div>
-                <div className="text-left text-white lg:w-2/3 lg:ml-6">
+                <div className="text-left sm:item-center sm:justify-center text-white lg:w-2/3 lg:ml-6">
                   <h1 className="text-5xl font-extrabold mb-4 tracking-wider">{restaurant.name}</h1>
                   <p className="text-lg mb-6">{restaurant.description}</p>
                   <div className="flex items-center">
@@ -176,45 +169,41 @@ const RestaurantPage = () => {
             </div>
           </section>
 
-          {/**message modal */}
           {message && (
             <MessageModal message={message} onClose={() => setMessage("")} />
           )}
 
-          {/**show login */}
           {showLogin && (
-          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-md">
-              <button
-                onClick={closeModal}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-              <Login  onSuccess={handleSuccess} onSwitchToRegister={() => setShowRegister(true)} />
+            <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-md">
+                <button
+                  onClick={closeModal}
+                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+                <Login onSuccess={handleSuccess} onSwitchToRegister={() => setShowRegister(true)} />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {showRegister && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-md">
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-            >
-              ✕
-            </button>
-            <Register  onSuccess={handleSuccess} onSwitchToLogin={() => setShowLogin(true)} />
-          </div>
-        </div>
-      )}
+          {showRegister && (
+            <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-md">
+                <button
+                  onClick={closeModal}
+                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+                <Register onSuccess={handleSuccess} onSwitchToLogin={() => setShowLogin(true)} />
+              </div>
+            </div>
+          )}
 
-          {/* Menu Section */}
           <section className="container mx-auto px-6 py-16">
-            <div className="flex">
-              {/* Left Column - Categories */}
-              <div className="w-1/4">
+            <div className="flex flex-col lg:flex-row">
+              <div className="w-full lg:w-1/4 mb-8 lg:mb-0">
                 <h2 className="text-4xl font-semibold mb-8">Categories</h2>
                 <ul>
                   <li
@@ -223,11 +212,11 @@ const RestaurantPage = () => {
                   >
                     All
                   </li>
-                  {categories.map((category, index) => (
+                  {categories.map((category) => (
                     <li
-                      key={index}
+                      key={category.id}
                       className="text-xl mb-4 cursor-pointer hover:text-blue-500"
-                      onClick={() => filterByCategory(category.name)}
+                      onClick={() => filterByCategory(category.id)}
                     >
                       {category.name}
                     </li>
@@ -235,36 +224,46 @@ const RestaurantPage = () => {
                 </ul>
               </div>
 
-              {/* Right Column - Menu Items (Food Cards) */}
-              <div className="w-3/4 grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="container-fluid">
+              <h1 className="fw-bold display-3 bg-gray">Menus</h1>
+              <div className="row row-cols-2 row-cols-md-2 row-cols-lg-2 g-4">
                 {filteredMenu.map((item) => (
-                  <div key={item.id} className="bg-white shadow-xl rounded-lg flex p-4 space-x-6">
-                    <img src={`http://localhost:3300/uploads/${item.picture_url}`} alt={item.name} className="h-24 w-24 object-cover rounded-md" />
-                    <div className="flex flex-col justify-between w-full">
-                      <h3 className="text-2xl font-semibold">{item.name}</h3>
-                      <p className="text-gray-600 mt-2">{item.description}</p>
-                      <div className="flex justify-between items-center mt-4">
-                        <p className="text-green-600 font-bold">₦{item.price}</p>
-                        <button
-                          onClick={() => handleOrderNow(item)}
-                          className={`${
-                            loading
-                              ? "bg-gray-300 text-gray-500"
-                              : "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-                          } px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-200 text-sm font-semibold`}
-                          disabled={loading}
-                        >
-                          {loading ? "Processing..." : "Order Now"}
-                        </button>
+                  <div key={item.id} className="col mb-4"> {/* Added margin bottom for spacing */}
+                    <div className="card h-100 shadow">
+                      {/* Image section */}
+                      <img
+                        src={`http://localhost:3300/uploads/${item.picture_url}`}
+                        alt={item.name}
+                        className="card-img-top"
+                        style={{ height: "12rem", objectFit: "cover" }}
+                      />
+
+                      {/* Content section */}
+                      <div className="card-body d-flex flex-column">
+                        <h3 className="card-title fs-4 fw-semibold mb-2">{item.name}</h3>
+                        <p className="card-text text-muted mb-4">{item.description}</p>
+
+                        {/* Price and Button */}
+                        <div className="d-flex justify-content-between align-items-center mt-auto">
+                          <p className="text-success fw-bold mb-0">₦{item.price}</p>
+                          <button
+                            onClick={() => handleOrderNow(item)}
+                            className={`btn ${loading ? "btn-secondary disabled" : "btn-primary"}`}
+                            disabled={loading}
+                          >
+                            {loading ? "Processing..." : "Order Now"}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+
+            </div>
           </section>
 
-          {/* Show Modal for Order */}
           {showModal && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
               <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -306,24 +305,23 @@ const RestaurantPage = () => {
                     </div>
 
                     {orderType === 'delivery' && (
-                    <div>
-                      <div className="mb-4">
-                        <label className="block text-gray-700 font-semibold">Location</label>
-                        <input
-                          type="text"
-                          placeholder="Enter delivery address"
-                          className="w-full p-2 border rounded-lg"
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                        />
-                      </div>
+                      <div>
+                        <div className="mb-4">
+                          <label className="block text-gray-700 font-semibold">Location</label>
+                          <input
+                            type="text"
+                            placeholder="Enter delivery address"
+                            className="w-full p-2 border rounded-lg"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                          />
+                        </div>
 
-                      <div className="mb-3">
-                        <h2 className="text-md">Delivery price is ₦1000</h2>
+                        <div className="mb-3">
+                          <h2 className="text-md">Delivery price is ₦1000</h2>
+                        </div>
                       </div>
-                    </div>
                     )}
-
 
                     <div className="mb-4">
                       <h4 className="text-lg font-semibold">Total Price: ₦{totalPrice}</h4>
@@ -343,8 +341,6 @@ const RestaurantPage = () => {
                         Cancel Order
                       </button>
                     </div>
-
-
                   </>
                 )}
               </div>

@@ -7,7 +7,7 @@ const About = () => {
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-800">About Us</h2>
           <p className="text-lg text-gray-500 mt-4">
-            Discover our story, passion, and the journey behind our restaurant.
+          Discover the story behind our platform, our passion for connecting restaurants and customers.
           </p>
         </div>
 
@@ -27,10 +27,13 @@ const About = () => {
               Our Journey
             </h3>
             <p className="text-lg text-gray-600">
-              Established in 2025, we embarked on a mission to provide delicious and high-quality meals to our community. Over the years, we have built a loyal customer base and continue to innovate with our offerings. Our commitment to quality, service, and atmosphere is at the core of everything we do.
+            Founded in 2025, we set out to create a food ordering platform that connects restaurants and customers seamlessly. Our mission has always been to offer a convenient, efficient, and enjoyable way for people to order their favorite meals while providing restaurants with the tools to manage orders and grow their businesses.
             </p>
             <p className="text-lg text-gray-600">
-              We pride ourselves on using only the finest locally sourced ingredients and delivering a memorable dining experience. Join us today and be a part of our family.
+            Over the years, we have continuously enhanced our platform, listening to both restaurants and customers to provide an experience that meets everyone’s needs. Our commitment to innovation, service, and user experience drives us to constantly improve and adapt.
+            </p>
+            <p className="text-lg text-gray-600">
+            We understand that quality and convenience go hand-in-hand, which is why we’ve made it easier than ever for customers to explore a variety of dining options and for restaurants to offer a smooth ordering process. Join us today, and be a part of the future of food ordering, where convenience meets quality for everyone.
             </p>
           </div>
         </div>
