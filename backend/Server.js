@@ -34,6 +34,6 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://0.0.0.0:${PORT}`);
+app.listen(PORT, 'localhost', () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
