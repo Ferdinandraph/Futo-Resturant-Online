@@ -5,12 +5,12 @@ const Verify = () => {
     const { token } = useParams();
     const navigate = useNavigate();
     const [status, setStatus] = useState('Verifying...');
-    const REACT_APP_API_UR = process.env.REACT_APP_API_UR;
+    const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const verifyUser = async () => {
             try {
-                const response = await fetch(`${REACT_APP_API_UR}/auth/verify/${token}`, {
+                const response = await fetch(`${REACT_APP_API_URL}/auth/verify/${token}`, {
                     method: 'GET',
                 });
 

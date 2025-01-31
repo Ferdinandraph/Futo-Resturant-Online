@@ -13,7 +13,7 @@ const RestaurantProfile = () => {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
 
-  const REACT_APP_API_UR = process.env.REACT_APP_API_UR
+  const REACT_APP_API_URL = process.env.REACT_APP_API_URL
 
   useEffect(() => {
     // Redirect if the user is not a restaurant
@@ -25,7 +25,7 @@ const RestaurantProfile = () => {
 
     // Fetch profile data when component mounts
     axios
-      .get(`${REACT_APP_API_UR}/restaurant/profile`, {
+      .get(`${REACT_APP_API_URL}/restaurant/profile`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((response) => {
@@ -65,7 +65,7 @@ const RestaurantProfile = () => {
     }
 
     axios
-      .put(`${REACT_APP_API_UR}/restaurant/profile`, formData, {
+      .put(`${REACT_APP_API_URL}/restaurant/profile`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
@@ -115,7 +115,7 @@ const RestaurantProfile = () => {
           />
           {profile.image && !(profile.image instanceof File) && (
             <img
-              src={`${REACT_APP_API_UR}/${profile.image}`}
+              src={`${REACT_APP_API_URL}/${profile.image}`}
               alt="Restaurant"
               className="mt-4 h-32 w-auto"
             />

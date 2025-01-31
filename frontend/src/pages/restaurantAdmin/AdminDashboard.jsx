@@ -40,7 +40,7 @@ const RestaurantAdminDashboard = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [paymentList, setPaymentList] = useState(null);
 
-  const REACT_APP_API_UR = process.env.REACT_APP_API_UR;
+  const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
 
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const RestaurantAdminDashboard = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(`${REACT_APP_API_UR}/restaurant/categories`);
+        const response = await axios.get(`${REACT_APP_API_URL}/restaurant/categories`);
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -87,7 +87,7 @@ const RestaurantAdminDashboard = () => {
 
   const fetchOverview = async () => {
     try {
-      const response = await axios.get(`${REACT_APP_API_UR}/restaurant/overview`, {
+      const response = await axios.get(`${REACT_APP_API_URL}/restaurant/overview`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setOverview(response.data);
@@ -98,7 +98,7 @@ const RestaurantAdminDashboard = () => {
 
   const fetchMenuItems = async () => {
     try {
-      const response = await axios.get(`${REACT_APP_API_UR}/restaurant/menu/${restaurantId}`, {
+      const response = await axios.get(`${REACT_APP_API_URL}/restaurant/menu/${restaurantId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setMenuItems(response.data);
@@ -130,7 +130,7 @@ const RestaurantAdminDashboard = () => {
     if (newItem.image) formData.append("image", newItem.image);
   
     try {
-      await axios.post(`${REACT_APP_API_UR}/restaurant/menu`, formData, {
+      await axios.post(`${REACT_APP_API_URL}/restaurant/menu`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
@@ -177,7 +177,7 @@ const RestaurantAdminDashboard = () => {
   
     try {
       // Make the PUT request to update the menu item
-      await axios.put(`${REACT_APP_API_UR}/restaurant/menu/${selectedItem.id}`, formData, {
+      await axios.put(`${REACT_APP_API_URL}/restaurant/menu/${selectedItem.id}`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
@@ -200,7 +200,7 @@ const RestaurantAdminDashboard = () => {
 
   const handleDeleteMenuItem = async (id) => {
     try {
-      await axios.delete(`${REACT_APP_API_UR}/restaurant/menu/${id}`, {
+      await axios.delete(`${REACT_APP_API_URL}/restaurant/menu/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       fetchMenuItems();
@@ -217,7 +217,7 @@ const RestaurantAdminDashboard = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get(`${REACT_APP_API_UR}/restaurant/profile/${restaurantId}`);
+      const response = await axios.get(`${REACT_APP_API_URL}/restaurant/profile/${restaurantId}`);
       console.log(response)
       if (response.data && response.data.profile) {
         const { user_id, name, address, image_url, contact_number, description } = response.data.profile;
@@ -256,7 +256,7 @@ const RestaurantAdminDashboard = () => {
 
     try {
       const method = profile.id ? "put" : "post";
-      const url = profile.id ? `${REACT_APP_API_UR}/restaurant/profile/${profile.id}` : `${REACT_APP_API_UR}/restaurant/profile`;
+      const url = profile.id ? `${REACT_APP_API_URL}/restaurant/profile/${profile.id}` : `${REACT_APP_API_URL}/restaurant/profile`;
       const response = await axios({
         method,
         url,
@@ -284,7 +284,7 @@ const RestaurantAdminDashboard = () => {
         return;
       }
 
-      const response = await axios.get(`${REACT_APP_API_UR}/api/paystack/payment/${restaurantId}`, {
+      const response = await axios.get(`${REACT_APP_API_URL}/api/paystack/payment/${restaurantId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setShowDetails(true);
@@ -327,7 +327,7 @@ const RestaurantAdminDashboard = () => {
         };
 
         const response = await axios.post(
-            `${REACT_APP_API_UR}/api/paystack/payment`,
+            `${REACT_APP_API_URL}/api/paystack/payment`,
             payload,
             { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -421,7 +421,7 @@ const RestaurantAdminDashboard = () => {
                   typeof profile.image === "string" ?
                   (
                   <img
-                    src={`${REACT_APP_API_UR}/uploads/${profile.image}`}
+                    src={`${REACT_APP_API_URL}/uploads/${profile.image}`}
                     alt="Restaurant"
                     className="mt-4 h-32 w-auto"
                   />
@@ -547,7 +547,7 @@ const RestaurantAdminDashboard = () => {
           src={
             item.picture_url instanceof File
               ? URL.createObjectURL(item.picture_url)
-              : `${REACT_APP_API_UR}/uploads/${item.picture_url}`
+              : `${REACT_APP_API_URL}/uploads/${item.picture_url}`
           }
           alt={item.name}
           className="w-full sm:w-28 h-28 object-cover rounded-lg mb-4 sm:mb-0"

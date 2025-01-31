@@ -28,7 +28,7 @@ const Home = () => {
 
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const REACT_APP_API_UR = process.env.REACT_APP_API_UR;
+  const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
 
 
   const navigate = useNavigate();
@@ -52,8 +52,8 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const [menuResponse, restaurantsResponse] = await Promise.all([
-          axios.get(`${REACT_APP_API_UR}/restaurant/menu`),
-          axios.get(`${REACT_APP_API_UR}/restaurant/profile`),
+          axios.get(`${REACT_APP_API_URL}/restaurant/menu`),
+          axios.get(`${REACT_APP_API_URL}/restaurant/profile`),
         ]);
 
         const menuItems = menuResponse.data;
@@ -157,7 +157,7 @@ const Home = () => {
   
       // Initialize Payment
       const { data } = await axios.post(
-        `${REACT_APP_API_UR}/api/paystack/initialize`,
+        `${REACT_APP_API_URL}/api/paystack/initialize`,
         paymentData,
         {
           headers: {
@@ -375,7 +375,7 @@ const Home = () => {
                   >
                     {/* Food Image */}
                     <img
-                      src={`${REACT_APP_API_UR}/uploads/${item.picture_url}`}
+                      src={`${REACT_APP_API_URL}/uploads/${item.picture_url}`}
                       alt={item.name}
                       className="w-full h-40 object-cover rounded-t-lg"
                     />
@@ -390,7 +390,7 @@ const Home = () => {
                       {/* Restaurant Info */}
                       <div className="flex items-center mt-2">
                         <img
-                          src={`${REACT_APP_API_UR}/uploads/${restaurant?.image_url}`}
+                          src={`${REACT_APP_API_URL}/uploads/${restaurant?.image_url}`}
                           alt={`${restaurant?.name} logo`}
                           className="w-8 h-8 object-cover rounded-full border border-gray-300 shadow-sm"
                         />
@@ -557,7 +557,7 @@ const Home = () => {
               {/* Logo */}
               <div className="flex items-center space-x-2 w-1/3">
                 <img
-                  src={`${REACT_APP_API_UR}/uploads/${restaurant.image_url}`}
+                  src={`${REACT_APP_API_URL}/uploads/${restaurant.image_url}`}
                   alt={`${restaurant.name} logo`}
                   className="w-10 h-10 object-cover rounded-full border border-gray-300 shadow-sm"
                 />

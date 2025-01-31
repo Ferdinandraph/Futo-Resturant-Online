@@ -10,7 +10,7 @@ const PaymentStatus = () => {
     const [message, setMessage] = useState("")
     const navigate = useNavigate()
 
-    const REACT_APP_API_UR = process.env.REACT_APP_API_UR;
+    const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
   
     useEffect(() => {
         const verifyPayment = async () => {
@@ -22,7 +22,7 @@ const PaymentStatus = () => {
             try {
                 const token = localStorage.getItem("token"); // Assuming you store the auth token in localStorage
                 const { data } = await axios.get(
-                    `${REACT_APP_API_UR}/api/paystack/verify/${reference}`,
+                    `${REACT_APP_API_URL}/api/paystack/verify/${reference}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`, // Include the token in the Authorization header

@@ -24,12 +24,12 @@ const RestaurantPage = () => {
   const [showRegister, setShowRegister] = useState(false);
 
   const token = localStorage.getItem('token');
-  const REACT_APP_API_UR = process.env.REACT_APP_API_UR;
+  const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchRestaurantData = async () => {
       try {
-        const restaurantResponse = await axios.get(`${REACT_APP_API_UR}/restaurant/profile/${restaurantId}`);
+        const restaurantResponse = await axios.get(`${REACT_APP_API_URL}/restaurant/profile/${restaurantId}`);
         setRestaurant(restaurantResponse.data.profile);
       } catch (err) {
         console.error('Error fetching restaurant:', err);
@@ -38,7 +38,7 @@ const RestaurantPage = () => {
 
     const fetchMenuData = async () => {
       try {
-        const menuResponse = await axios.get(`${REACT_APP_API_UR}/restaurant/menu/${restaurantId}`);
+        const menuResponse = await axios.get(`${REACT_APP_API_URL}/restaurant/menu/${restaurantId}`);
         setMenu(menuResponse.data);
         setFilteredMenu(menuResponse.data);
       } catch (err) {
@@ -48,7 +48,7 @@ const RestaurantPage = () => {
 
     const fetchCategories = async () => {
       try {
-        const categoriesResponse = await axios.get(`${REACT_APP_API_UR}/restaurant/categories`);
+        const categoriesResponse = await axios.get(`${REACT_APP_API_URL}/restaurant/categories`);
         setCategories(categoriesResponse.data);
       } catch (err) {
         console.error('Error fetching categories:', err);
@@ -114,7 +114,7 @@ const RestaurantPage = () => {
       };
 
       const { data } = await axios.post(
-        `${REACT_APP_API_UR}/api/paystack/initialize`,
+        `${REACT_APP_API_URL}/api/paystack/initialize`,
         paymentData,
         {
           headers: {
@@ -153,7 +153,7 @@ const RestaurantPage = () => {
               <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center lg:items-start">
                 <div className="lg:w-1/3 flex justify-center items-center lg:justify-start">
                   <img
-                    src={`${REACT_APP_API_UR}/uploads/${restaurant.image_url}`}
+                    src={`${REACT_APP_API_URL}/uploads/${restaurant.image_url}`}
                     alt={`${restaurant.name} logo`}
                     className="w-25 h-25 object-cover rounded-full border border-gray-300 shadow-sm"
                   />
@@ -233,7 +233,7 @@ const RestaurantPage = () => {
                     <div className="card h-100 shadow">
                       {/* Image section */}
                       <img
-                        src={`${REACT_APP_API_UR}/uploads/${item.picture_url}`}
+                        src={`${REACT_APP_API_URL}/uploads/${item.picture_url}`}
                         alt={item.name}
                         className="card-img-top"
                         style={{ height: "12rem", objectFit: "cover" }}

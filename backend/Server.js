@@ -9,11 +9,13 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 
 const corsOptions = {
-  origin: ["https://futo-resturant-online-2-h25e.onrender.com, http://localhost:3000"],
-  credentials:true,
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allow methods you use
-  allowedHeaders: ["Content-Type", "Authorization"],  // Customize headers if needed
+  origin: ["https://futo-resturant-online-2-h25e.onrender.com", "http://localhost:3000"], // Fix syntax (split into array properly)
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 };
+app.use(cors(corsOptions));
+
 // Enable CORS
 app.use(cors( corsOptions));
 
