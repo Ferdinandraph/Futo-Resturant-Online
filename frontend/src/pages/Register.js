@@ -12,11 +12,13 @@ const Register = ({onSuccess, onSwitchToLogin}) => {
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(true)
 
+    const REACT_APP_API_UR = process.env.REACT_APP_API_UR;
+    
     const handleRegister = async (e) => {
         e.preventDefault(); // Prevent form submission
 
         try {
-            const response = await axios.post('http://localhost:10000/auth/register', {
+            const response = await axios.post(`${REACT_APP_API_UR}/auth/register`, {
                 name,
                 email,
                 password,

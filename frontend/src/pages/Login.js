@@ -14,6 +14,7 @@ const Login = ({ onSuccess, onSwitchToRegister }) => {
   const useQuery = () => new URLSearchParams(location.search);
   const query = useQuery();
   const verificationStatus = query.get("verification");
+  const REACT_APP_API_UR = process.env.REACT_APP_API_UR;
 
   useEffect(() => {
     if (verificationStatus === "success") {
@@ -33,7 +34,7 @@ const Login = ({ onSuccess, onSwitchToRegister }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:10000/auth/login", {
+      const response = await fetch(`${REACT_APP_API_UR}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
