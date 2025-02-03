@@ -1,7 +1,7 @@
 const axios = require("axios");
 const mysql = require("mysql2"); 
 const db = require("../dbconnection");
-const { sendVerificationEmail, sendPaymentConfirmationEmail } = require("../brevo")
+const { sendPaymentConfirmationEmailToCustomer, sendPaymentConfirmationEmail } = require("../brevo")
 
 // Initialize payment
 const initializePayment = async (req, res) => {
@@ -127,6 +127,7 @@ const verifyPayment = async (req, res) => {
             const orderId = orderRows[0].id;
             const customerEmail = orderRows[0].customer_email;
             const customerLocation = orderRows[0].location;
+            const customerName = orderRows[0].name;
 
             // Update the order status to 'confirmed'
             await db.query(`UPDATE orders SET status = ? WHERE id = ?`, ["confirmed", orderId]);
@@ -195,6 +196,19 @@ const verifyPayment = async (req, res) => {
                     response.data.data.amount,
                     itemRows,
                     customerEmail,   // Include customer email
+                    customerLocation // Include customer location
+                );
+            } catch (error) {
+                console.error("Failed to send payment confirmation email:", error);
+                // Optionally, you can log this error to a monitoring system
+            }
+
+            try {
+                await sendPaymentConfirmationEmailToCustomer(
+                    customerEmail,
+                    orderId,
+                    response.data.data.amount,
+                    itemRows,  // Include customer email
                     customerLocation // Include customer location
                 );
             } catch (error) {
