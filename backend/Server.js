@@ -1,4 +1,5 @@
 require("dotenv").config();
+const path = require('path');
 const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
@@ -28,7 +29,8 @@ app.use("/auth", authRoutes);
 app.use("/restaurant", restaurantRoutes);
 
 // Serve static files
-app.use('/uploads', express.static('C:/Users/USER/Documents/Futo-Resturant-Online/backend/uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 app.use("/api/paystack", paystackRoutes);
 
