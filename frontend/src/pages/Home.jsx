@@ -577,7 +577,7 @@ const Home = () => {
                 onClick={() => visitRestaurant(restaurant.user_id)}
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-1 py-1 rounded-md hover:from-green-600 hover:to-green-700 transition duration-200 text-sm font-semibold shadow-md w-1/3"
               >
-                Check out
+                View menu
               </button>
             </div>
           </div>
