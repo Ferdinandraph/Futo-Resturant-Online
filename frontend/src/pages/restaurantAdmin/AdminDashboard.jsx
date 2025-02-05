@@ -477,7 +477,7 @@ const RestaurantAdminDashboard = () => {
           </div>
           <div className="bg-orange-500 text-white p-6 rounded shadow">
             <h3 className="text-lg font-bold">Total Revenue</h3>
-            <p className="text-2xl">${overview.totalRevenue || 0}</p>
+            <p className="text-2xl">₦{overview.totalRevenue || 0}</p>
           </div>
           <div className="bg-purple-500 text-white p-6 rounded shadow">
             <h3 className="text-lg font-bold">Pending Orders</h3>

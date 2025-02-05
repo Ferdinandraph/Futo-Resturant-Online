@@ -235,14 +235,27 @@ exports.updateMenu = async (req, res) => {
 
 // Delete a menu item
 exports.delMenu = async (req, res) => {
-  const sql = 'DELETE FROM menu WHERE id = ?';
+  const menuId = req.params.id;
+
   try {
-    await query(sql, [req.params.id]);
-    res.json({ message: 'Menu item deleted!' });
+    // First, delete the dependent rows in order_items
+    await db.execute('DELETE FROM order_items WHERE food_item_id = ?', [menuId]);
+    
+    // Then, delete the menu item
+    const sql = 'DELETE FROM menu WHERE id = ?';
+    const [result] = await db.execute(sql, [menuId]);
+
+    if (result.affectedRows > 0) {
+      res.json({ message: 'Menu item deleted successfully!' });
+    } else {
+      res.status(404).json({ error: 'Menu item not found' });
+    }
   } catch (err) {
-    res.status(500).json({ error: 'Database error' });
+    console.error('Error deleting menu item:', err);
+    res.status(500).json({ error: 'Failed to delete menu item', details: err.message });
   }
 };
+
 
 exports.categories = async(req, res) => {
   try {
