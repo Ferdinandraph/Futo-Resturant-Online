@@ -8,10 +8,15 @@ const db = mysql.createPool({
     database: process.env.DB_NAME
 });
 
-if (db){
-    console.log('Connected to MySQL using connection pool all working now');
-} else {
-    console.log('not connected successfully')
-}
+(async () => {
+    try {
+        const connection = await db.getConnection();
+        console.log('✅ Connected to MySQL using connection pool');
+        connection.release(); // Release connection back to pool
+    } catch (err) {
+        console.error('❌ Database connection failed:', err.message);
+        process.exit(1); // Stop the app if DB is unreachable
+    }
+})();
 
 module.exports = db;
