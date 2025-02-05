@@ -8,7 +8,10 @@ const db = mysql.createPool({
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'restaurant_online',
     port: process.env.DB_PORT || 3306,
-    ssl: isProduction ? { rejectUnauthorized: true } : false, // Use SSL only in production
+    ssl: isProduction ? {
+        rejectUnauthorized: true,
+        ca: process.env.AIVEN_CA_CERT // The certificate from the environment variable
+        } : false, // Use SSL only in production
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
