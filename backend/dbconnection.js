@@ -8,7 +8,10 @@ const db = mysql.createPool({
     database: process.env.DB_NAME
 });
 
-// You don't need to call connect here as the pool itself will be ready to use immediately.
-console.log('Connected to MySQL using connection pool');
+if (db){
+    console.log('Connected to MySQL using connection pool');
+} else {
+    console.log('not connected successfully')
+}
 
 module.exports = db;
