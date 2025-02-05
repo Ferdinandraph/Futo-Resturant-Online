@@ -9,7 +9,7 @@ const db = mysql.createPool({
 });
 
 if (db){
-    console.log('Connected to MySQL using connection pool');
+    console.log('Connected to MySQL using connection pool all working now');
 } else {
     console.log('not connected successfully')
 }
